@@ -1,6 +1,7 @@
 # KnowledgeBase
 
 A browser-based knowledge base and markdown editor with live preview, diagrams, math, AI assistance, and Excel integration. Single HTML file, zero server required.
+Try it ! 
 
 ## Features
 
