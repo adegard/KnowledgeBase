@@ -64,3 +64,7 @@ Open `kb_improved_SVG.html` in any modern web browser (Chrome/Edge recommended f
 ## License
 
 MIT
+
+
+---
+For an overview of all my other projects, see https://adegard.github.io/blog/
