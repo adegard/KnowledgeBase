@@ -1,9 +1,13 @@
+[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-red.png)](https://www.buymeacoffee.com/adegard)
+
 # KnowledgeBase
 
 A browser-based knowledge base and markdown editor with live preview, diagrams, math, AI assistance, and Excel integration. Single HTML file, zero server required.
 
 Try it ! 
 https://adegard.github.io/KnowledgeBase/kb_improved_SVG.html
+
+![Screenshot](screen.jpg)
 
 ## Features
 
