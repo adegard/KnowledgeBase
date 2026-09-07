@@ -1,8 +1,11 @@
 [![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-red.png)](https://www.buymeacoffee.com/adegard)
 
-# KnowledgeBase
+# Knowledge Base — Android
 
-A browser-based knowledge base and markdown editor with live preview, diagrams, math, AI assistance, and Excel integration. Single HTML file, zero server required.
+A native Android (Kotlin + Jetpack Compose) port of the
+[adegard/KnowledgeBase](https://github.com/adegard/KnowledgeBase) web app —
+a folder-based knowledge base with a Markdown editor, live preview,
+multiple tabs, full-text search, file management and dark/light themes.
 
 Try it ! 
 https://adegard.github.io/KnowledgeBase/kb_improved_SVG.html
@@ -11,60 +14,67 @@ https://adegard.github.io/KnowledgeBase/kb_improved_SVG.html
 
 ## Features
 
-### Markdown Editor
-- Live split-pane preview (editor + rendered output)
-- Toolbar with formatting buttons (bold, italic, headings, lists, tables, blockquotes, code)
-- Find & replace (Ctrl+F)
-- Tab bar for multiple open files
-- Auto-save with visual indicator
-- Outline panel for document navigation
-- Word count and line indicator
+- **Knowledge base folder selection** — pick any folder on the device via the
+  Storage Access Framework (SAF); everything inside stays as plain `.md` files.
+- **Markdown editor** with live WebView preview (editor/preview split pane,
+  draggable splitter).
+- **Formatting toolbar** — bold, italic, strikethrough, inline code, H1–H3,
+  bullet/numbered lists, task checkboxes, blockquotes, tables, links, images.
+- **Tabs** — open several notes at once, dirty-indicator dots, close buttons.
+- **Auto-save** with visual status (saving / saved / error).
+- **Find & replace** including replace-one and replace-all.
+- **Outline panel** for navigating document headings.
+- **Full-text search** across all notes in the knowledge base.
+- **File management** — create files & folders, rename, move, delete
+  (long-press a tree item).
+- **Rich rendering** — the preview runsp `marked` for Markdown, KaTeX for Math
+  and Mermaid for diagrams (loaded from CDN, with an offline fallback parser).
+- **Dark / Light theme** toggle, persisted across launches.
+- Sample knowledge base included for a quick start.
 
-### Rich Content Support
-- **Mermaid diagrams** — flowcharts, sequence diagrams, Gantt charts, and more
-- **KaTeX math** — LaTeX formula rendering inline and display mode
-- **SVG drawings** — import and render SVG with DSL blocks
-- **DXF import** — AutoCAD drawings converted to SVG display
-- **iFrame embeds** — embed external content
-- **Calculator blocks** — inline spreadsheet-style calculations with formulas
-- **Excel tables** — sortable, searchable data tables from JSON
+## Project structure
 
-### Excel Integration
-- **XLS → JSON import** — VBA macro generates JSON from Excel selections, paste into KnowledgeBase
-- Auto-detect column types (numbers, text)
-- Sortable columns, search/filter
-- Formula bar display
+```
+app/src/main/java/com/knowledgebase/app/
+├── KnowledgeBaseApp.kt        Application (DI-lite)
+├── MainActivity.kt            Navigation drawer + folder picker + dialogs
+├── data/
+│   ├── model/                 Note, TreeNode, KnowledgeBase
+│   └── repository/            FileRepository (SAF), PreferencesRepository
+├── ui/
+│   ├── components/            Sidebar, TabBar, EditorToolbar,
+│   │                          EditorPanels, Dialogs
+│   ├── screens/               EditorScreen, FolderPickerScreen
+│   ├── theme/                 Light/Dark Material3 theme
+│   └── viewmodel/             MainViewModel (tree, tabs, autosave, search)
+└── util/                      MarkdownFormatUtil, MarkdownRendererHelper
+```
 
-### AI Assistant
-- Powered by Groq API (free tier)
-- Multiple modes: Write, Continue, Improve, Summarise, Diagram, SVG Drawing, Table, Translate, Explain
-- Streaming output with stop control
-- Insert at cursor, replace selection, or append to document
-- Configurable models (Llama 3.3, Mixtral, Gemma, DeepSeek)
+## Build
 
-### File Management
-- Open local folder via File System Access API
-- Sidebar tree with folders and files
-- Create, rename, move, delete files and folders
-- Full-text search across all notes
-- Browser storage fallback (no folder needed)
+```bash
+# Android SDK (compileSdk 35) + JDK 17+ required
+./gradlew assembleDebug
+# APK output:
+app/build/outputs/apk/debug/app-debug.apk
+```
 
-### Interface
-- Dark / Light theme toggle
-- Resizable sidebar
-- Resizable editor/preview splitter
-- Keyboard shortcuts (Ctrl+B/I/E/N/F, etc.)
-- Toast notifications
-- Export to DOC or raw Markdown
+Install on a connected device:
 
-## Getting Started
+```bash
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
 
-Open `kb_improved_SVG.html` in any modern web browser (Chrome/Edge recommended for folder access).
+## Note on Room
+
+The app intentionally avoids Room/annotation processors so it builds anywhere;
+persistence uses plain files (the notes) plus a small JSON preferences store
+for open tabs and settings. This keeps the APK lean and lets a knowledge base
+be any normal folder on the device.
 
 ## License
 
-MIT
-
+MIT — adapted from the original [adegard/KnowledgeBase](https://github.com/adegard/KnowledgeBase).
 
 ---
 For an overview of all my other projects, see https://adegard.github.io/blog/
