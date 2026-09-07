@@ -7,7 +7,7 @@ A native Android (Kotlin + Jetpack Compose) port of the
 a folder-based knowledge base with a Markdown editor, live preview,
 multiple tabs, full-text search, file management and dark/light themes.
 
-Try it ! 
+Try it in browser! 
 https://adegard.github.io/KnowledgeBase/kb_improved_SVG.html
 
 ![Screenshot](screen.jpg)
