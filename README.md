@@ -1,6 +1,6 @@
 [![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-red.png)](https://www.buymeacoffee.com/adegard)
 
-# Knowledge Base — Android
+# Knowledge Base — Android and HTML versions
 
 A native Android (Kotlin + Jetpack Compose) port of the
 [adegard/KnowledgeBase](https://github.com/adegard/KnowledgeBase) web app —
