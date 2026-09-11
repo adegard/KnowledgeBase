@@ -18,10 +18,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Menu
@@ -165,7 +171,18 @@ class MainActivity : ComponentActivity() {
                 drawerState = drawerState,
                 drawerContent = {
                     Surface(modifier = Modifier.fillMaxSize()) {
-                        Column(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .windowInsetsPadding(
+                                    WindowInsets.statusBars
+                                        .union(WindowInsets.displayCutout)
+                                        .only(WindowInsetsSides.Top)
+                                )
+                        ) {
+                            val activeTab = uiState.openTabs.firstOrNull {
+                                it.notePath == uiState.activeTabPath
+                            }
                             // Drawer header
                             Row(
                                 modifier = Modifier
@@ -191,40 +208,27 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
-                            HorizontalDivider()
-
-                            Sidebar(
-                                tree = uiState.tree,
-                                isLoading = uiState.isTreeLoading,
-                                searchQuery = uiState.searchQuery,
-                                searchResults = uiState.searchResults,
-                                activeTabPath = uiState.activeTabPath,
-                                selectedFolderPath = uiState.selectedFolderPath,
-                                onSearch = { viewModel.searchNotes(it) },
-                                onOpenFile = { path, name, uri ->
-                                    viewModel.openNote(path, name, uri)
-                                    scope.launch { drawerState.close() }
-                                },
-                                onToggleFolder = {},
-                                onSelectFolder = { path -> viewModel.setSelectedFolder(path) },
-                                onRename = { item -> renaming = item },
-                                onMove = { item -> moving = item },
-                                onDelete = { path -> deletePath = path },
-                                onClearSearch = { viewModel.searchNotes("") }
-                            )
-
-                            HorizontalDivider()
-
-                            // Drawer footer: actions
+                            // Quick actions (always visible at top of menu)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(8.dp),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                DrawerActionButton("＋ File") { showCreateFileDialog = true }
-                                DrawerActionButton("Folder") { showCreateFolderDialog = true }
-                                DrawerActionButton("Refresh") { viewModel.refreshTree() }
+                                DrawerActionButton("＋ File", enabled = uiState.hasRoot) {
+                                    showCreateFileDialog = true
+                                }
+                                DrawerActionButton("Folder", enabled = uiState.hasRoot) {
+                                    showCreateFolderDialog = true
+                                }
+                                DrawerActionButton("Rename", enabled = activeTab != null) {
+                                    activeTab?.let {
+                                        renaming = RenamingItem(it.notePath, it.name, isFolder = false)
+                                    }
+                                }
+                                DrawerActionButton("Delete", enabled = activeTab != null) {
+                                    activeTab?.let { deletePath = it.notePath }
+                                }
                             }
                             Row(
                                 modifier = Modifier
@@ -235,6 +239,7 @@ class MainActivity : ComponentActivity() {
                                 DrawerActionButton("Storage") { openAllFilesSettings() }
                                 DrawerActionButton("Switch KB") { viewModel.clearKnowledgeBase() }
                                 DrawerActionButton("Theme") { viewModel.toggleDarkMode() }
+                                DrawerActionButton("Refresh") { viewModel.refreshTree() }
                             }
                             Surface(
                                 onClick = {
@@ -258,6 +263,28 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             Spacer(Modifier.height(8.dp))
+                            HorizontalDivider()
+
+                            Sidebar(
+                                modifier = Modifier.weight(1f),
+                                tree = uiState.tree,
+                                isLoading = uiState.isTreeLoading,
+                                searchQuery = uiState.searchQuery,
+                                searchResults = uiState.searchResults,
+                                activeTabPath = uiState.activeTabPath,
+                                selectedFolderPath = uiState.selectedFolderPath,
+                                onSearch = { viewModel.searchNotes(it) },
+                                onOpenFile = { path, name, uri ->
+                                    viewModel.openNote(path, name, uri)
+                                    scope.launch { drawerState.close() }
+                                },
+                                onToggleFolder = {},
+                                onSelectFolder = { path -> viewModel.setSelectedFolder(path) },
+                                onRename = { item -> renaming = item },
+                                onMove = { item -> moving = item },
+                                onDelete = { path -> deletePath = path },
+                                onClearSearch = { viewModel.searchNotes("") }
+                            )
                         }
                     }
                 }
@@ -272,7 +299,11 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .statusBarsPadding()
+                            .windowInsetsPadding(
+                                WindowInsets.statusBars
+                                    .union(WindowInsets.displayCutout)
+                                    .only(WindowInsetsSides.Top)
+                            )
                     ) {
                         val activeTab = uiState.openTabs.firstOrNull {
                             it.notePath == uiState.activeTabPath
@@ -441,16 +472,20 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun DrawerActionButton(label: String, onClick: () -> Unit) {
+    private fun DrawerActionButton(label: String, enabled: Boolean = true, onClick: () -> Unit) {
+        val bg = MaterialTheme.colorScheme.surfaceVariant
+        val fg = MaterialTheme.colorScheme.onSurfaceVariant
         Surface(
             onClick = onClick,
+            enabled = enabled,
             shape = MaterialTheme.shapes.small,
-            color = MaterialTheme.colorScheme.surfaceVariant
+            color = if (enabled) bg else bg.copy(alpha = 0.4f)
         ) {
             Text(
                 label,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
+                color = if (enabled) fg else fg.copy(alpha = 0.4f)
             )
         }
     }

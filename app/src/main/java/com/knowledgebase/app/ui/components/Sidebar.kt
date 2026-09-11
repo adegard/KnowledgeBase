@@ -52,6 +52,7 @@ import com.knowledgebase.app.data.model.TreeNode
 
 @Composable
 fun Sidebar(
+    modifier: Modifier = Modifier,
     tree: List<TreeNode>,
     isLoading: Boolean,
     searchQuery: String,
@@ -78,7 +79,7 @@ fun Sidebar(
     // Track expanded folders locally per sidebar instance
     val expandedPaths = remember { mutableStateMapOf<String, Boolean>() }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
